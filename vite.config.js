@@ -1,0 +1,9 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// base './' makes the build work on Vercel, Netlify and GitHub Pages sub-paths
+export default defineConfig({
+  plugins: [react()],
+  base: './',
+  build: { chunkSizeWarningLimit: 900 },
+})
