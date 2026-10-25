@@ -24,7 +24,6 @@ export const profile = {
 export const philosophy = [
   'Design → Code',
   'Responsive by default',
-  'Micro-interactions',
   'Clean, scalable components',
   'API-driven UIs',
   'Performance first',

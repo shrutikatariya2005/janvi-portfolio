@@ -631,7 +631,7 @@ function Contact({ onResume }) {
     <section className="section contact" id="contact">
       <SectionHead index="06" label="Contact" title="Let’s build something." />
       <div className="terminal glass reveal">
-        <div className="term-bar"><i /><i /><i /><span>janvi@portfolio ~ dossier</span></div>
+        <div className="term-bar"><i /><i /><i /><span>Janvi Portfolio</span></div>
         <dl>
           <div><dt>name</dt><dd>Janvi Movaliya</dd></div>
           <div><dt>role</dt><dd>{profile.role} · {profile.secondaryRole}</dd></div>
