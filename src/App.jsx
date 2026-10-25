@@ -241,54 +241,16 @@ function About() {
 
 /* ───────────── projects ───────────── */
 
-function MockCandidate() {
-  const jobs = [['Frontend Engineer', 'Applied', 'ok'], ['UI Designer', 'In review', 'mid'], ['React Developer', 'Interview set', 'ok']]
-  return (
-    <div className="mock-body">
-      <div className="mock-title">Open roles <em>24</em></div>
-      {jobs.map(([n, s, k]) => (
-        <div className="mock-row" key={n}><span>{n}</span><b className={k}>{s}</b></div>
-      ))}
-      <div className="mock-track">
-        {['Applied', 'Screening', 'Interview', 'Offer'].map((s, i) => (
-          <div key={s} className={i < 3 ? 'done' : ''}><i />{s}</div>
-        ))}
-      </div>
-    </div>
-  )
-}
-function MockHR() {
-  return (
-    <div className="mock-body">
-      <div className="mock-stats">
-        {[['Candidates', '128'], ['Interviews', '36'], ['Offers', '9']].map(([a, b]) => (
-          <div key={a}><small>{a}</small><strong>{b}</strong></div>
-        ))}
-      </div>
-      <div className="mock-chart">
-        {[40, 62, 48, 80, 66, 92, 74].map((h, i) => <i key={i} style={{ height: `${h}%` }} />)}
-      </div>
-    </div>
-  )
-}
-function MockPipeline() {
-  const cols = [['Applied', 3], ['Screening', 2], ['Interview', 2], ['Offer', 1]]
-  return (
-    <div className="mock-body pipeline">
-      {cols.map(([c, n]) => (
-        <div key={c} className="col">
-          <small>{c}</small>
-          {Array.from({ length: n }).map((_, i) => <div key={i} className="card-mini" />)}
-        </div>
-      ))}
-    </div>
-  )
-}
+const nextHireScreens = [
+  { tab: 'HR Dashboard',      src: '/hr.jpeg',          alt: 'Next Hire – HR Dashboard' },
+  { tab: 'Candidate Portal',  src: '/candidate.jpeg',   alt: 'Next Hire – Candidate Portal' },
+  { tab: 'Interviewer View',  src: '/interviewer.jpeg', alt: 'Next Hire – Interviewer View' },
+]
 
 function NextHireCard() {
-  const [tab, setTab] = useState('Candidate Portal')
+  const [active, setActive] = useState(0)
+  const [lightbox, setLightbox] = useState(false)
   const card = useRef(null)
-  const tabs = ['Candidate Portal', 'HR Dashboard', 'Interview Pipeline']
 
   const onMove = (e) => {
     if (prefersReducedMotion()) return
@@ -296,28 +258,117 @@ function NextHireCard() {
     const r = el.getBoundingClientRect()
     const px = (e.clientX - r.left) / r.width - 0.5
     const py = (e.clientY - r.top) / r.height - 0.5
-    el.style.transform = `perspective(1000px) rotateY(${px * 14}deg) rotateX(${-py * 12}deg)`
+    el.style.transform = `perspective(1000px) rotateY(${px * 10}deg) rotateX(${-py * 8}deg)`
   }
   const onLeave = () => (card.current.style.transform = '')
 
+  useEffect(() => {
+    if (!lightbox) return
+    const onKey = (e) => {
+      if (e.key === 'Escape') setLightbox(false)
+      if (e.key === 'ArrowRight') setActive((i) => (i + 1) % nextHireScreens.length)
+      if (e.key === 'ArrowLeft') setActive((i) => (i - 1 + nextHireScreens.length) % nextHireScreens.length)
+    }
+    window.addEventListener('keydown', onKey)
+    document.body.style.overflow = 'hidden'
+    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = '' }
+  }, [lightbox])
+
+  const current = nextHireScreens[active]
+
   return (
-    <div className="tilt-wrap" onMouseMove={onMove} onMouseLeave={onLeave}>
-      <div className="tilt glass" ref={card}>
-        <div className="mock-bar">
-          <i /><i /><i /><span>nexthire.app / {tab.toLowerCase().replace(' ', '-')}</span>
+    <>
+      <div className="tilt-wrap" onMouseMove={onMove} onMouseLeave={onLeave}>
+        <div className="tilt glass nh-card" ref={card}>
+          {/* browser bar */}
+          <div className="mock-bar">
+            <i /><i /><i />
+            <span>nexthire.app / {current.tab.toLowerCase().replace(' ', '-')}</span>
+          </div>
+
+          {/* tab switcher */}
+          <div className="mock-tabs" role="tablist">
+            {nextHireScreens.map((s, i) => (
+              <button
+                key={s.tab}
+                role="tab"
+                aria-selected={i === active}
+                className={i === active ? 'on' : ''}
+                onClick={() => setActive(i)}
+              >
+                {s.tab}
+              </button>
+            ))}
+          </div>
+
+          {/* real screenshot — click to fullscreen */}
+          <button
+            className="nh-img-wrap"
+            onClick={() => setLightbox(true)}
+            aria-label={`View ${current.tab} fullscreen`}
+            title="Click to view fullscreen"
+          >
+            <img
+              key={current.src}
+              src={current.src}
+              alt={current.alt}
+              className="nh-img"
+              loading="lazy"
+            />
+            <div className="nh-zoom-hint" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+              </svg>
+              Fullscreen
+            </div>
+          </button>
+
+          {/* thumbnail strip */}
+          <div className="nh-strip">
+            {nextHireScreens.map((s, i) => (
+              <button
+                key={i}
+                className={`nh-thumb ${i === active ? 'active' : ''}`}
+                onClick={() => setActive(i)}
+                aria-label={s.tab}
+              >
+                <img src={s.src} alt={s.tab} loading="lazy" />
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="mock-tabs" role="tablist">
-          {tabs.map((t) => (
-            <button key={t} role="tab" aria-selected={tab === t} className={tab === t ? 'on' : ''} onClick={() => setTab(t)}>
-              {t}
-            </button>
-          ))}
-        </div>
-        {tab === 'Candidate Portal' && <MockCandidate />}
-        {tab === 'HR Dashboard' && <MockHR />}
-        {tab === 'Interview Pipeline' && <MockPipeline />}
       </div>
-    </div>
+
+      {/* fullscreen lightbox */}
+      {lightbox && (
+        <div className="lb-back" onMouseDown={() => setLightbox(false)} role="presentation">
+          <div className="lb-modal" onMouseDown={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <div className="lb-header">
+              <div className="lb-header-left">
+                <span className="lb-tag">Next Hire</span>
+                <strong className="lb-title">{current.tab}</strong>
+              </div>
+              <div className="lb-header-right">
+                <span className="lb-count">{active + 1} / {nextHireScreens.length}</span>
+                <button className="lb-close" onClick={() => setLightbox(false)} aria-label="Close">✕</button>
+              </div>
+            </div>
+            <div className="lb-img-wrap">
+              <button className="lb-arrow left" onClick={() => setActive((i) => (i - 1 + nextHireScreens.length) % nextHireScreens.length)} aria-label="Previous">‹</button>
+              <img key={current.src} src={current.src} alt={current.alt} className="lb-img" />
+              <button className="lb-arrow right" onClick={() => setActive((i) => (i + 1) % nextHireScreens.length)} aria-label="Next">›</button>
+            </div>
+            <div className="lb-strip">
+              {nextHireScreens.map((s, i) => (
+                <button key={i} className={`lb-thumb ${i === active ? 'active' : ''}`} onClick={() => setActive(i)} aria-label={s.tab}>
+                  <img src={s.src} alt={s.tab} loading="lazy" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -362,6 +413,7 @@ function Projects() {
     </section>
   )
 }
+
 
 /* ───────────── design lab (Figma folder gallery) ───────────── */
 
