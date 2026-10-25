@@ -42,10 +42,7 @@ export const project = {
   repoUrl: 'https://github.com/janvimovaliya04-max',
 }
 
-export const concepts = [
-  { code: 'LAB-02', title: 'Concept Lab', blurb: 'A new interface experiment is being sketched. Signal incoming.' },
-  { code: 'LAB-03', title: 'In Development', blurb: 'Next case study loading — design system + motion study.' },
-]
+export const concepts = []
 
 export const skills = [
   {
